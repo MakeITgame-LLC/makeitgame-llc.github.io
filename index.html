@@ -4,418 +4,89 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Название обязано совпадать с именем приложения на экране согласия Google
-     («Tic Tac Toe: offline»), иначе проверка branding не проходит. -->
-<title>Tic Tac Toe: offline</title>
-<meta name="description" content="Крестики-нолики против компьютера. Три уровня сложности, работает без интернета.">
+<title>MakeITgame</title>
+<meta name="description" content="MakeITgame — студия мобильных игр и приложений.">
 
-<!-- Подтверждение владения сайтом в Google Search Console.
+<!-- Подтверждение владения доменом в Google Search Console.
      НЕ УДАЛЯТЬ: Google перепроверяет тег периодически и снимет подтверждение,
      если он пропадёт. Без подтверждённого домена не проходит проверка branding
      на экране согласия Google. -->
 <meta name="google-site-verification" content="sUhDGz-aEy0TFELEu3iAgo90yo4AwH3-Wb0zktKKePQ" />
 
+<meta property="og:type" content="website">
+<meta property="og:title" content="MakeITgame">
+<meta property="og:url" content="https://makeitgame.ru/">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --bg: #F7F6F3;
-    --surface: #FFFFFF;
-    --text: #1A1A1A;
-    --muted: #6B6B6B;
-    --line: rgba(0, 0, 0, 0.08);
-    --x: #E8674C;
-    --o: #3B5BDB;
-    --shadow: 0 10px 30px rgba(26, 26, 26, 0.07);
+    --paper:  #ECEEF3;
+    --ink:    #10131A;
+    --accent: #3F4AE8;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #16171A;
-      --surface: #212227;
-      --text: #F3F3F4;
-      --muted: #9A9AA2;
-      --line: rgba(255, 255, 255, 0.09);
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      --paper:  #0E1015;
+      --ink:    #EEF0F4;
+      --accent: #7A82FF;
     }
   }
 
   * { box-sizing: border-box; }
 
+  html, body { height: 100%; }
+
   body {
     margin: 0;
-    padding: 48px 24px 64px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: Manrope, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", Roboto, sans-serif;
+    display: grid;
+    place-items: center;
+    padding: 24px;
     -webkit-font-smoothing: antialiased;
   }
 
-  main { max-width: 640px; margin: 0 auto; }
-
   .logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .mark {
     width: 96px; height: 96px;
     display: grid; place-items: center;
-    background: var(--surface);
-    border-radius: 26px;
-    box-shadow: var(--shadow);
-    margin-bottom: 28px;
+    background: var(--accent);
+    border-radius: 28px;
   }
 
   h1 {
-    margin: 0 0 8px;
-    font-size: clamp(30px, 6vw, 40px);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-  }
-
-  .subtitle { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
-  .subtitle-en { margin: 0 0 36px; font-size: 16px; color: var(--muted); }
-
-  ul.features { list-style: none; margin: 0 0 36px; padding: 0; }
-
-  ul.features li {
-    background: var(--surface);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    padding: 18px 22px;
-    margin-bottom: 12px;
-  }
-
-  ul.features b { display: block; font-weight: 700; }
-  ul.features span { color: var(--muted); font-size: 15px; }
-
-  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-
-  .cta {
-    display: inline-block;
-    background: var(--o);
-    color: #fff;
-    font-weight: 700;
-    font-size: 17px;
-    text-decoration: none;
-    padding: 16px 32px;
-    border-radius: 20px;
-    box-shadow: 0 10px 24px rgba(59, 91, 219, 0.28);
-  }
-
-  .cta:hover { background: #2E48AE; }
-
-  .cta-secondary {
-    display: inline-block;
-    color: var(--text);
-    font-weight: 700;
-    font-size: 16px;
-    text-decoration: none;
-    padding: 16px 26px;
-    border-radius: 20px;
-    border: 1px solid var(--line);
-    background: var(--surface);
-  }
-
-  .cta-secondary:hover { border-color: var(--muted); }
-
-  /* --- Раздел про удаление аккаунта ---------------------------------------
-     Google требует, чтобы страница с инструкцией была публичной, называла
-     приложение или разработчика, содержала пошаговую инструкцию на видном
-     месте и перечисляла, что удаляется, что остаётся и на какой срок.
-     Ссылка на этот якорь подаётся в Play Console → Контент приложения →
-     Удаление аккаунта. */
-  section.delete {
-    margin-top: 56px;
-    padding-top: 40px;
-    border-top: 1px solid var(--line);
-    /* Чтобы при переходе по якорю заголовок не прилипал к верхней кромке. */
-    scroll-margin-top: 24px;
-  }
-
-  h2 {
-    margin: 0 0 12px;
-    font-size: clamp(24px, 5vw, 30px);
-    font-weight: 800;
-    letter-spacing: -0.015em;
-    line-height: 1.2;
-  }
-
-  h3 {
-    margin: 28px 0 10px;
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  p.lead { margin: 0 0 20px; color: var(--muted); }
-
-  .note {
-    background: var(--surface);
-    border-left: 4px solid var(--o);
-    border-radius: 0 16px 16px 0;
-    box-shadow: var(--shadow);
-    padding: 16px 20px;
     margin: 0;
+    font-size: clamp(34px, 8vw, 56px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
   }
-
-  .note p { margin: 0; font-size: 15px; }
-
-  ol.steps { margin: 0; padding-left: 22px; }
-  ol.steps li { margin-bottom: 8px; }
-
-  .table-wrap { overflow-x: auto; margin: 16px 0 0; }
-
-  table {
-    width: 100%;
-    min-width: 520px;
-    border-collapse: collapse;
-    font-size: 15px;
-  }
-
-  th, td {
-    text-align: left;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--line);
-    vertical-align: top;
-  }
-
-  th { font-weight: 700; }
-  td.term { white-space: nowrap; color: var(--muted); }
-
-  code {
-    font-size: 0.92em;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 1px 6px;
-  }
-
-  .en {
-    margin-top: 40px;
-    padding: 24px;
-    background: var(--surface);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-  }
-
-  .en h2 { font-size: 20px; margin-bottom: 8px; }
-  .en h3 { font-size: 16px; margin-top: 18px; }
-  .en p, .en li { font-size: 15px; }
-
-  a { color: var(--o); }
-
-  footer {
-    margin-top: 48px;
-    padding-top: 24px;
-    border-top: 1px solid var(--line);
-    font-size: 15px;
-    color: var(--muted);
-  }
-
-  footer a { color: var(--o); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
-  footer p { margin: 6px 0; }
 </style>
 </head>
 <body>
 
-<main>
-  <div class="logo">
-    <!-- Тот же знак, что на иконке приложения: крестик слева сверху,
-         нолик справа снизу. -->
-    <svg width="56" height="56" viewBox="0 0 56 56" role="img" aria-label="Крестики-нолики">
-      <g stroke="#E8674C" stroke-width="5" stroke-linecap="round">
-        <line x1="6" y1="6" x2="26" y2="26"/>
-        <line x1="26" y1="6" x2="6" y2="26"/>
-      </g>
-      <circle cx="39" cy="39" r="9.5" fill="none" stroke="#3B5BDB" stroke-width="5"/>
+<div class="logo">
+  <span class="mark" aria-hidden="true">
+    <svg width="52" height="52" viewBox="0 0 16 16" fill="none">
+      <path d="M2 13V3l4 5 4-5v10" stroke="#fff" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12.5" cy="11.5" r="1.6" fill="#fff"/>
     </svg>
-  </div>
-
-  <h1>Tic Tac Toe: offline</h1>
-  <p class="subtitle">Крестики-нолики против компьютера</p>
-  <p class="subtitle-en">Tic tac toe against the computer. Three levels, plays with no internet.</p>
-
-  <ul class="features">
-    <li>
-      <b>Три уровня сложности</b>
-      <span>На лёгком бот ошибается, на сложном не проигрывает никогда — максимум ничья.</span>
-    </li>
-    <li>
-      <b>Работает без интернета</b>
-      <span>Партия доступна в метро, в самолёте и в дороге. Регистрация не нужна.</span>
-    </li>
-    <li>
-      <b>Статистика и тёмная тема</b>
-      <span>Победы, поражения и ничьи по каждому уровню. Русский и английский язык.</span>
-    </li>
-  </ul>
-
-  <div class="actions">
-    <a class="cta" href="https://play.google.com/store/apps/details?id=com.makeitgame.tictactoe">Скачать в Google Play</a>
-    <a class="cta-secondary" href="#delete">Удаление аккаунта и данных</a>
-  </div>
-
-  <section class="delete" id="delete">
-    <h2>Удаление аккаунта и данных</h2>
-    <p class="lead">
-      Приложение <strong>Tic Tac Toe: offline</strong> (<code>com.makeitgame.tictactoe</code>),
-      разработчик <strong>MakeITgame</strong>.
-    </p>
-
-    <div class="note">
-      <p>
-        У игры нет собственного сервера и нет отдельной регистрации. Вход через Google
-        нужен только для того, чтобы показать имя и фото в меню, — играть можно и без него.
-        Поэтому «удалить аккаунт» здесь означает отвязать гугл-аккаунт и стереть данные.
-        И то, и другое вы можете сделать сами за минуту.
-      </p>
-    </div>
-
-    <h3>Шаг 1. Отвязать гугл-аккаунт</h3>
-    <ol class="steps">
-      <li>Откройте приложение и перейдите в раздел <strong>Настройки</strong>.</li>
-      <li>Нажмите <strong>Выйти</strong>.</li>
-      <li>Имя, адрес почты и фото профиля сразу стираются с устройства.</li>
-    </ol>
-    <p>
-      Дополнительно можно отозвать у приложения доступ к аккаунту Google: откройте
-      <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>,
-      найдите в списке «Tic Tac Toe: offline» и нажмите «Закрыть доступ».
-    </p>
-
-    <h3>Шаг 2. Стереть данные с устройства</h3>
-    <ol class="steps">
-      <li>Удалите приложение — вместе с ним стирается вся статистика и настройки.</li>
-      <li>Либо, если удалять приложение не хотите: <strong>Настройки Android →
-          Приложения → Tic Tac Toe: offline → Хранилище → Очистить данные</strong>.</li>
-    </ol>
-
-    <h3>Шаг 3. Запросить удаление данных из аналитики и рекламы</h3>
-    <ol class="steps">
-      <li>Напишите на <a href="mailto:sergeo.sss@yandex.ru?subject=%D0%A3%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85">sergeo.sss@yandex.ru</a>
-          с темой «Удаление данных».</li>
-      <li>Укажите адрес почты, под которым входили в игру, и&nbsp;/&nbsp;или ваш рекламный
-          идентификатор (<strong>Настройки Android → Google → Реклама</strong>).</li>
-      <li>Запрос обрабатывается в течение <strong>30 дней</strong>, о результате мы отвечаем письмом.</li>
-    </ol>
-
-    <h2 style="margin-top:36px">Что удаляется и что остаётся</h2>
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th>Данные</th>
-          <th>Что происходит</th>
-          <th>Срок</th>
-        </tr>
-        <tr>
-          <td>Имя, адрес почты, фото профиля Google</td>
-          <td>Хранятся только в памяти устройства. Стираются при выходе из аккаунта</td>
-          <td class="term">Сразу</td>
-        </tr>
-        <tr>
-          <td>Статистика партий, настройки звука, темы, языка и сложности</td>
-          <td>Никогда не покидают устройство. Стираются при очистке данных или удалении
-              приложения. Восстановить их нельзя: резервных копий у нас нет</td>
-          <td class="term">Сразу</td>
-        </tr>
-        <tr>
-          <td>Обезличенные события аналитики (Firebase Analytics)</td>
-          <td>Не содержат имени и почты. Удаляются автоматически по истечении срока
-              хранения либо раньше — по вашему запросу</td>
-          <td class="term">2 месяца,<br>по запросу 30 дней</td>
-        </tr>
-        <tr>
-          <td>Отчёты о сбоях (Firebase Crashlytics)</td>
-          <td>Удаляются автоматически</td>
-          <td class="term">90 дней</td>
-        </tr>
-        <tr>
-          <td>Токен push-уведомлений (Firebase Cloud Messaging)</td>
-          <td>Аннулируется при удалении приложения или отзыве разрешения на уведомления</td>
-          <td class="term">Сразу</td>
-        </tr>
-        <tr>
-          <td>Рекламный идентификатор и данные о показах (Яндекс Реклама)</td>
-          <td>Идентификатор можно сбросить или удалить в настройках Android. Удаление
-              данных на стороне Яндекса — по запросу</td>
-          <td class="term">По <a href="https://yandex.ru/legal/confidential/" target="_blank" rel="noopener">политике Яндекса</a></td>
-        </tr>
-      </table>
-    </div>
-
-    <p style="margin-top:20px">
-      Собственных серверов у MakeITgame нет, и копий ваших данных мы не храним. Всё, что
-      покидает устройство, находится в сервисах Google и Яндекса и удаляется по срокам
-      из таблицы выше. Подробнее — в
-      <a href="/Privacy-Policy/">политике конфиденциальности</a>.
-    </p>
-
-    <div class="en">
-      <h2>Account and Data Deletion</h2>
-      <p>
-        App <strong>Tic Tac Toe: offline</strong> (<code>com.makeitgame.tictactoe</code>),
-        developer <strong>MakeITgame</strong>.
-      </p>
-      <p>
-        The game has no server of its own and no separate registration. Google Sign-In only
-        shows your name and photo in the menu, and the game is fully playable without it.
-        "Deleting your account" therefore means disconnecting your Google account and erasing
-        the data — both of which you can do yourself.
-      </p>
-
-      <h3>Step 1. Disconnect your Google account</h3>
-      <ol class="steps">
-        <li>Open the app and go to <strong>Settings</strong>.</li>
-        <li>Tap <strong>Sign out</strong>. Your name, email and profile photo are erased from
-            the device immediately.</li>
-        <li>Optionally revoke access at
-            <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>.</li>
-      </ol>
-
-      <h3>Step 2. Erase the data on your device</h3>
-      <ol class="steps">
-        <li>Uninstall the app, or</li>
-        <li>go to <strong>Android Settings → Apps → Tic Tac Toe: offline → Storage →
-            Clear data</strong>.</li>
-      </ol>
-
-      <h3>Step 3. Request deletion of analytics and advertising data</h3>
-      <ol class="steps">
-        <li>Email <a href="mailto:sergeo.sss@yandex.ru?subject=Data%20deletion%20request">sergeo.sss@yandex.ru</a>
-            with the subject "Data deletion request".</li>
-        <li>Include the email address you signed in with and&nbsp;/&nbsp;or your Advertising ID.</li>
-        <li>Requests are processed within <strong>30 days</strong>.</li>
-      </ol>
-
-      <h3>What is deleted and what is kept</h3>
-      <ul>
-        <li><strong>Name, email, profile photo</strong> — kept on the device only, erased on
-            sign-out, immediately.</li>
-        <li><strong>Game statistics and settings</strong> — never leave the device, erased on
-            uninstall or clear data, immediately and irreversibly.</li>
-        <li><strong>Anonymous analytics events</strong> — 2 months automatically, or 30 days
-            on request.</li>
-        <li><strong>Crash reports</strong> — 90 days automatically.</li>
-        <li><strong>Push notification token</strong> — invalidated on uninstall, immediately.</li>
-        <li><strong>Advertising ID and ad impression data</strong> — resettable in Android
-            settings; retained by Yandex under
-            <a href="https://yandex.com/legal/confidential/" target="_blank" rel="noopener">its own policy</a>.</li>
-      </ul>
-      <p>
-        MakeITgame runs no servers and keeps no copies of your data. See the
-        <a href="/Privacy-Policy/">Privacy Policy</a> for details.
-      </p>
-    </div>
-  </section>
-
-  <footer>
-    <p>Разработчик: MakeITgame</p>
-    <p>Поддержка: <a href="mailto:sergeo.sss@yandex.ru">sergeo.sss@yandex.ru</a></p>
-    <p><a href="/Privacy-Policy/">Политика конфиденциальности</a></p>
-    <p><a href="#delete">Удаление аккаунта и данных</a></p>
-  </footer>
-</main>
+  </span>
+  <h1>MakeITgame</h1>
+</div>
 
 </body>
 </html>
